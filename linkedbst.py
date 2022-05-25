@@ -8,6 +8,9 @@ from bstnode import BSTNode
 from linkedstack import LinkedStack
 # from linkedqueue import LinkedQueue
 from math import log
+import random
+import time
+import sys
 
 
 class LinkedBST(AbstractCollection):
@@ -317,3 +320,54 @@ class LinkedBST(AbstractCollection):
         :return:
         :rtype:
         """
+        words = []
+        with open(path, encoding="utf-8") as file:
+            words = [line.strip().split()[0] for line in file]
+
+        sample_words = random.sample(words, 10000)
+
+        # List test
+        builtin_type_list_time_start = time.time()
+        for word in sample_words:
+            words.index(word)
+        builtin_type_list_time = time.time() - builtin_type_list_time_start
+        print(f"10000 using list method: {builtin_type_list_time}")
+
+        # Binary tree test (orderly addition)
+        tree = LinkedBST()
+        random_words = random.sample(words[:10000], 10000)
+        tree.add(words[0])
+        top = tree._root
+        for word in sample_words[1:1000]:
+            top.right = BSTNode(word)
+            top = top.right
+            tree._size += 1
+        ordered_binary_tree_time_start = time.time()
+        for index in range(len(sample_words)):
+            tree.find(sample_words[index])
+        ordered_binary_tree_time = time.time() - ordered_binary_tree_time_start
+        print(f"10000 words using binary tree when added ordered by alphabet: {ordered_binary_tree_time}")
+
+        # Binary tree test (random addition)
+        tree = LinkedBST()
+        for word in random.sample(words, len(words)):
+            tree.add(word)
+        random_binary_tree_time_start = time.time()
+        for word in sample_words:
+            tree.find(word)
+        random_binary_tree_time = time.time() - random_binary_tree_time_start
+        print(f"10000 words using binary tree when added randomly: {random_binary_tree_time}")
+
+        # Binary tree test (Balanced)
+        tree.rebalance()
+        balanced_tree_time_start = time.time()
+        for word in sample_words:
+            tree.find(word)
+        balanced_tree_time = time.time() - balanced_tree_time_start
+        print(f"10000 words using a balanced binary tree: {balanced_tree_time}")
+
+sys.setrecursionlimit(100000)
+
+if __name__ == "__main__":
+    tree = LinkedBST()
+    tree.demo_bst('words.txt')
